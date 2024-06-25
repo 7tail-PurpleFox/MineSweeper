@@ -6,3 +6,4 @@ WHITE = (255, 255, 255)
 GRAY = (198, 198, 198)
 IMAGE_PATH = 'resource/image'
 FONT_PATH = 'resource/font'
+SOUND_PATH = 'resource/sound'

@@ -27,3 +27,5 @@ grids=[]
 for i in range(0,256,16):
     temp=tool.get_image(g,0,i,16,16,scale=3)
     grids.insert(0,temp)
+
+sounds = tool.load_sound(C.SOUND_PATH)
