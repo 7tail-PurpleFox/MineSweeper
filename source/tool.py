@@ -1,6 +1,7 @@
 import pygame
 import os
 from . import constant as C
+import json
 
 class Game:
     def __init__(self,state_dict,start_state):
@@ -14,18 +15,37 @@ class Game:
         self.state_dict = state_dict
         self.state = self.state_dict[start_state]
         self.pos = pygame.mouse.get_pos()
-        self.sound_scale = 5
+        if os.path.exists("game_setting.json"):
+            with open("game_setting.json","r") as f:
+                self.game_setting = json.load(f)
+                self.sound_scale = self.game_setting["sound_scale"]
+                self.music_scale = self.game_setting["music_scale"]
+                self.explode_type = self.game_setting["explode_type"]
+                self.custom_field = self.game_setting["custom_field"]
+        else:
+            self.sound_scale = 5
+            self.music_scale = 5
+            self.explode_type = 1
+            self.custom_field = [9,9,10]
+            self.game_setting = {"sound_scale":self.sound_scale,
+                                "music_scale":self.music_scale,
+                                "explode_type":self.explode_type,
+                                "custom_field":self.custom_field}
         
     def update(self):
         self.background.fill(C.GRAY)
+        self.game_setting["sound_scale"] = self.sound_scale
+        self.game_setting["music_scale"] = self.music_scale
+        self.game_setting["explode_type"] = self.explode_type
+        feedback = self.state.update(self.background,self.events,self.pos,self.game_setting)
         if self.state.finished:
             next_state = self.state.next
             self.state.finished = False
             self.state = self.state_dict[next_state]
-        if self.state.quit:
+        if feedback == "quit":
             self.running = False
-        feedback = self.state.update(self.background,self.events,self.pos,self.sound_scale)
-        
+        elif feedback == "main_menu":
+            self.state = self.state_dict["main_menu"]
     def run(self):
         while self.running:
             self.events = pygame.event.get()
@@ -37,6 +57,8 @@ class Game:
             self.update()
             pygame.display.update()
             self.clock.tick(120)
+        with open("game_setting.json","w") as f:
+            json.dump(self.game_setting,f)
         pygame.quit()
     def blit_background(self):
         if self.screen.get_width()==C.MAX_WIDTH:

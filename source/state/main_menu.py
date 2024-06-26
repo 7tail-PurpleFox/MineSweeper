@@ -6,8 +6,7 @@ from .. import tool
 class MainMenu:
     def __init__(self):
         self.finished = False
-        self.next = 'game_place'
-        self.quit = False
+        self.next = 'game_menu'
         self.border_hor_wide = pygame.transform.scale(setup.border_hor_wide, ((6,90)))
         self.border_hor = pygame.transform.scale(setup.border_hor, ((6,33)))
         self.border_vert = pygame.transform.scale(setup.border_vert, ((36,6)))
@@ -17,7 +16,8 @@ class MainMenu:
         self.corner_bottom_right = pygame.transform.scale(setup.corner_bottom_right, (36,33))
         self.corner_up_left = pygame.transform.scale(setup.corner_up_left, (36,33))
         self.corner_up_right = pygame.transform.scale(setup.corner_up_right, (36,33))
-        self.sound_explosion = setup.sounds['explosion']
+        self.sound_explosion_1 = setup.sounds['explosion_1']
+        self.sound_explosion_2 = setup.sounds['explosion_2']
         self.sound_button = setup.sounds['button']
         
 
@@ -28,14 +28,16 @@ class MainMenu:
         self.tutorial = pygame.Rect(36,450,480,96)
         self.exit = pygame.Rect(36,546,480,96)
         
-    def update(self,screen,events,pos,sound_scale):
+    def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen)
-        pygame.mixer.Sound.set_volume(self.sound_button,sound_scale/10)
-        pygame.mixer.Sound.set_volume(self.sound_explosion,sound_scale/10)
+        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.new_game.collidepoint(pos):
                     self.sound_button.play()
+                    self.finished = True
                 elif self.record.collidepoint(pos):
                     self.sound_button.play()
                 elif self.options.collidepoint(pos):
@@ -43,9 +45,9 @@ class MainMenu:
                 elif self.tutorial.collidepoint(pos):
                     self.sound_button.play()
                 elif self.exit.collidepoint(pos):
-                    self.quit = True
+                    return "quit"
                 elif self.title.collidepoint(pos):
-                    self.sound_explosion.play()
+                    sound_explosion.play()
                 
 
         
