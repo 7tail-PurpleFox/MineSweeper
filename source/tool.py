@@ -42,10 +42,9 @@ class Game:
             next_state = self.state.next
             self.state.finished = False
             self.state = self.state_dict[next_state]
-        if feedback == "quit":
-            self.running = False
-        elif feedback == "main_menu":
-            self.state = self.state_dict["main_menu"]
+        if feedback != None:
+            self.handle_feedback(feedback)
+            
     def run(self):
         while self.running:
             self.events = pygame.event.get()
@@ -91,6 +90,16 @@ class Game:
         rect=self.sub_background.get_rect()
         rect.center=self.screen.get_rect().center
         self.screen.blit(self.sub_background,rect.topleft)
+        
+    def handle_feedback(self,feedback):
+        if feedback == "quit":
+            self.running = False
+        elif feedback == "main_menu":
+            self.state = self.state_dict["main_menu"]
+        elif "custom_field" in feedback:
+            temp=feedback.split()
+            self.custom_field=[int(temp[1]),int(temp[2]),int(temp[3])]
+            self.game_setting["custom_field"]=self.custom_field
         
 def load_image(path, accept={"png", "jpg", "bmp", "gif"}):
     #載入圖片

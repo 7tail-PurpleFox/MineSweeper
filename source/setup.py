@@ -8,6 +8,7 @@ screen.fill(C.BLACK)
 pygame.display.set_caption('Mine Sweeper')
 images = tool.load_image(C.IMAGE_PATH)
 fonts_32 = tool.load_font(C.FONT_PATH,32)
+fonts_24 = tool.load_font(C.FONT_PATH,24)
 fonts_16 = tool.load_font(C.FONT_PATH,16)
 
 border_hor_wide = images['border_hor_wide']
@@ -22,6 +23,7 @@ corner_up_right = images['corner_up_right']
 
 minecraft_font_32 = fonts_32['minecraft']
 mine_sweeper_font_32 = fonts_32['mine_sweeper']
+mine_sweeper_font_24 = fonts_24['mine_sweeper']
 mine_sweeper_font_16 = fonts_16['mine_sweeper']
 
 g = images['grid']
