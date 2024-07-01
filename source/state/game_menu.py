@@ -97,6 +97,10 @@ class Game_Menu:
                         self.height = 9
                         self.mines = 10
                         return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
+                elif self.start.collidepoint(pos):
+                    self.sound_button.play()
+                    self.finished = True
+                    return "game_places "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
             elif event.type == pygame.KEYDOWN:
                 if self.state == "Custom":
                     check = False

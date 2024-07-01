@@ -22,15 +22,21 @@ class Game:
                 self.music_scale = self.game_setting["music_scale"]
                 self.explode_type = self.game_setting["explode_type"]
                 self.custom_field = self.game_setting["custom_field"]
+                self.game_place = [9,9,10]
+                self.block_size = 480/9
         else:
             self.sound_scale = 5
             self.music_scale = 5
             self.explode_type = 1
             self.custom_field = [9,9,10]
+            self.game_place = [9,9,10]
+            self.block_size = 480/9
             self.game_setting = {"sound_scale":self.sound_scale,
                                 "music_scale":self.music_scale,
                                 "explode_type":self.explode_type,
-                                "custom_field":self.custom_field}
+                                "custom_field":self.custom_field,
+                                "game_place":self.game_place,
+                                "block_size":self.block_size}
         
     def update(self):
         self.background.fill(C.GRAY)
@@ -47,6 +53,7 @@ class Game:
             
     def run(self):
         while self.running:
+            self.screen.fill(C.BLACK)
             self.events = pygame.event.get()
             for event in self.events:
                 if event.type == pygame.QUIT:
@@ -65,13 +72,18 @@ class Game:
             background_width, background_height = self.sub_background.get_size()
             background_width = int(screen_height * background_width / background_height)
             background_height = screen_height
-            self.pos = ((self.pos[0]-((C.MAX_WIDTH-background_width)//2))*C.SCREEN_SIZE[0]//background_width,self.pos[1]*C.SCREEN_SIZE[1]//screen_height)
+            if background_width > screen_width:
+                background_height = int(screen_width * background_height / background_width)
+                background_width = screen_width
+                self.pos = (self.pos[0]*(72+self.block_size*self.game_place[0])//screen_width,(self.pos[1]-((screen_height-background_height)//2))*(252+self.block_size*self.game_place[1])//background_height)
+            else:
+                self.pos = ((self.pos[0]-((C.MAX_WIDTH-background_width)//2))*(72+self.block_size*self.game_place[0])//background_width,self.pos[1]*(252+self.block_size*self.game_place[1])//screen_height)
             self.sub_background =self.background.copy()
             self.sub_background = pygame.transform.scale(self.sub_background, (background_width, background_height))
         elif self.screen.get_size() != self.sub_background.get_size():
             screen_width, screen_height = self.screen.get_size()
             background_width, background_height = self.sub_background.get_size()
-            self.pos = (self.pos[0]*C.SCREEN_SIZE[0]//screen_width,self.pos[1]*C.SCREEN_SIZE[1]//screen_height)
+            self.pos = (self.pos[0]*(72+self.block_size*self.game_place[0])//screen_width,self.pos[1]*(252+self.block_size*self.game_place[1])//screen_height)
             if screen_width != background_width:
                 background_height = int(screen_width * background_height / background_width)
                 screen_height = background_height
@@ -85,7 +97,7 @@ class Game:
             self.sub_background = pygame.transform.scale(self.sub_background, (background_width, background_height)) 
         else:
             screen_width, screen_height = self.screen.get_size()
-            self.pos = (self.pos[0]*C.SCREEN_SIZE[0]//screen_width,self.pos[1]*C.SCREEN_SIZE[1]//screen_height)
+            self.pos = (self.pos[0]*(72+self.block_size*self.game_place[0])//screen_width,self.pos[1]*(252+self.block_size*self.game_place[1])//screen_height)
             self.sub_background = pygame.transform.scale(self.background.copy(),self.sub_background.get_size())
         rect=self.sub_background.get_rect()
         rect.center=self.screen.get_rect().center
@@ -100,6 +112,23 @@ class Game:
             temp=feedback.split()
             self.custom_field=[int(temp[1]),int(temp[2]),int(temp[3])]
             self.game_setting["custom_field"]=self.custom_field
+        elif "game_places" in feedback:
+            temp=feedback.split()
+            self.game_place=[int(temp[1]),int(temp[2]),int(temp[3])]
+            self.game_setting["game_place"]=self.game_place
+            if 480/min(self.game_place[0],self.game_place[1])<30:
+                self.block_size=30
+            else:
+                self.block_size=480/min(self.game_place[0],self.game_place[1])
+            if self.screen.get_width()!=C.MAX_WIDTH:
+                h=self.screen.get_height()
+                ratio=h/(252+self.block_size*self.game_place[1])
+                w=(72+self.block_size*self.game_place[0])*ratio
+                self.screen=pygame.display.set_mode((w, h), pygame.RESIZABLE)
+            self.screen.fill(C.BLACK)
+            self.background=pygame.Surface((72+self.block_size*self.game_place[0],252+self.block_size*self.game_place[1])).convert()
+            self.background.fill(C.GRAY)
+            self.sub_background=self.background.copy()
         
 def load_image(path, accept={"png", "jpg", "bmp", "gif"}):
     #載入圖片
