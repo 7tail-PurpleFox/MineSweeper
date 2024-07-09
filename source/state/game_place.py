@@ -176,7 +176,7 @@ class Game_Place:
         if len(self.mines_map)!=0 and self.record_check==False:
             self.record_check=True
             return "record/"+str(self.record_time)+"/"+str(pos)+"/"+str(self.flags)+"/"+str(w)+"/"+str(h)+"/"+str(m)+"/"+str(self.mines_map)
-        elif self.record_check==True:
+        elif self.record_check==True and not (self.lose or self.win):
             s="record/"+str(self.record_time)+"/"+str(pos)+"/"+str(self.flags)
             if self.record_explore:
                 s=s+"/"+str(self.mines_explore)
@@ -246,10 +246,12 @@ class Game_Place:
         else:
             if not (self.lose or self.win):
                 t=pygame.time.get_ticks()-self.time
-                self.record_time=t
-                t=t//1000
-                if t>999:
-                    t=999
+            else:
+                t=self.record_time
+            self.record_time=t
+            t=t//1000
+            if t>999:
+                t=999
             temp=setup.numbers[t//100]
             screen.blit(temp,(screen.get_width()-168,46.5))
             temp=setup.numbers[t%100//10]
