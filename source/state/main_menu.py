@@ -34,12 +34,15 @@ class MainMenu:
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONUP:
                 if self.new_game.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
+                    self.next = "game_menu"
                 elif self.record.collidepoint(pos):
                     self.sound_button.play()
+                    self.finished = True
+                    self.next = "record"
                 elif self.options.collidepoint(pos):
                     self.sound_button.play()
                 elif self.tutorial.collidepoint(pos):
@@ -48,6 +51,43 @@ class MainMenu:
                     return "quit"
                 elif self.title.collidepoint(pos):
                     sound_explosion.play()
+        if any(pygame.mouse.get_pressed()):
+            if self.new_game.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'New Game')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.new_game.topleft)
+            elif self.record.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Record')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.record.topleft)
+            elif self.options.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Options')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.options.topleft)
+            elif self.tutorial.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Tutorial')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.tutorial.topleft)
+            elif self.exit.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Exit')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.exit.topleft)
+            elif self.title.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Mine*Sweeper')
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.title.topleft)
                 
 
         

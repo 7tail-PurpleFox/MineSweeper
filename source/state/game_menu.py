@@ -41,13 +41,13 @@ class Game_Menu:
         self.set_backgroud(screen)
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONUP:
                 if not (self.custom_field_frame[0].collidepoint(pos) or self.custom_field_frame[1].collidepoint(pos) or self.custom_field_frame[2].collidepoint(pos)):
                     self.custom_field_activate = [False,False,False]
                 if self.title.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
-                    return "main_menu"
+                    self.next = "main_menu"
                 elif self.sub_titles[self.state][0].collidepoint(pos):
                     self.sound_button.play()
                     self.state = "Beginner"
@@ -100,6 +100,7 @@ class Game_Menu:
                 elif self.start.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
+                    self.next = "game_place"
                     return "game_places "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
             elif event.type == pygame.KEYDOWN:
                 if self.state == "Custom":
@@ -136,6 +137,71 @@ class Game_Menu:
                                 return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                     if check:
                         self.custom_field_activate[temp] = True
+        if any(pygame.mouse.get_pressed()):
+            if self.title.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Select Mode',setup.mine_sweeper_font_32,3)
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.title.topleft)
+            elif self.start.collidepoint(pos):
+                temp = pygame.Surface((500,100))
+                temp.fill(C.GRAY)
+                self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
+                temp = pygame.transform.scale(temp,(480,96))
+                screen.blit(temp,self.start.topleft)
+            elif self.sub_titles[self.state][0].collidepoint(pos):
+                if self.sub_titles[self.state][0].width==60:
+                    temp = pygame.Surface((65,52))
+                    temp.fill(C.GRAY)
+                    tool.blit_text(temp,setup.mine_sweeper_font_16,'*',C.BLACK,(temp.get_width()/2,temp.get_height()/2),True)
+                    temp = pygame.transform.scale(temp,(60,48))
+                    temp2=pygame.Surface((60,48)).convert()
+                    temp2.fill(C.BLACK)
+                    temp2.set_alpha(100)
+                    temp.blit(temp2,(0,0))
+                    screen.blit(temp,self.sub_titles[self.state][0].topleft)
+                    
+            elif self.sub_titles[self.state][1].collidepoint(pos):
+                if self.sub_titles[self.state][1].width==60:
+                    temp = pygame.Surface((65,52))
+                    temp.fill(C.GRAY)
+                    tool.blit_text(temp,setup.mine_sweeper_font_16,'*',C.BLACK,(temp.get_width()/2,temp.get_height()/2),True)
+                    temp = pygame.transform.scale(temp,(60,48))
+                    temp2=pygame.Surface((60,48)).convert()
+                    temp2.fill(C.BLACK)
+                    temp2.set_alpha(100)
+                    temp.blit(temp2,(0,0))
+                    screen.blit(temp,self.sub_titles[self.state][1].topleft)
+            elif self.sub_titles[self.state][2].collidepoint(pos):
+                if self.sub_titles[self.state][2].width==60:
+                    temp = pygame.Surface((65,52))
+                    temp.fill(C.GRAY)
+                    tool.blit_text(temp,setup.mine_sweeper_font_16,'*',C.BLACK,(temp.get_width()/2,temp.get_height()/2),True)
+                    temp = pygame.transform.scale(temp,(60,48))
+                    temp2=pygame.Surface((60,48)).convert()
+                    temp2.fill(C.BLACK)
+                    temp2.set_alpha(100)
+                    temp.blit(temp2,(0,0))
+                    screen.blit(temp,self.sub_titles[self.state][2].topleft)
+            elif self.sub_titles[self.state][3].collidepoint(pos):
+                if self.sub_titles[self.state][3].width==60:
+                    temp = pygame.Surface((65,52))
+                    temp.fill(C.GRAY)
+                    tool.blit_text(temp,setup.mine_sweeper_font_16,'*',C.BLACK,(temp.get_width()/2,temp.get_height()/2),True)
+                    temp = pygame.transform.scale(temp,(60,48))
+                    temp2=pygame.Surface((60,48)).convert()
+                    temp2.fill(C.BLACK)
+                    temp2.set_alpha(100)
+                    temp.blit(temp2,(0,0))
+                    screen.blit(temp,self.sub_titles[self.state][3].topleft)
+            elif self.custom_reset_rect.collidepoint(pos):
+                    if self.custom_reset:
+                        temp = pygame.Surface((325,52))
+                        temp.fill(C.GRAY)
+                        self.blit_title(temp,'Reset',setup.mine_sweeper_font_16,2)
+                        temp = pygame.transform.scale(temp,(300,48))
+                        screen.blit(temp,self.custom_reset_rect.topleft)
     def set_backgroud(self,screen):
         screen.blit(self.corner_up_left,(0,0))
         for i in range(36,516,6):
@@ -206,7 +272,7 @@ class Game_Menu:
         temp2.blit(g,(-26,0))
         temp2=pygame.transform.rotate(temp2,180)
         temp3 = self.create_dark_sub_button_base()
-
+        self.custom_reset = False
         if self.state == "Beginner":
             screen.blit(temp,self.sub_titles[self.state][0].topleft)
             screen.blit(temp2,(self.sub_titles[self.state][0].topleft[0]+297,self.sub_titles[self.state][0].topleft[1]+48))
@@ -270,7 +336,6 @@ class Game_Menu:
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Mines :',C.WHITE,(200-3,436+3),True)
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Mines :',C.BLACK,(200,436),True)
             text=''
-            self.custom_reset = False
             if self.width < 9:
                 text='Width must be greater than 9'
             elif self.height < 9:
@@ -283,7 +348,7 @@ class Game_Menu:
                 text='Height must be less than 24'
             elif self.mines > self.width*self.height:
                 text='Mines must be less than '+str(self.width*self.height)
-            else:
+            elif self.state=="Custom":
                 self.custom_reset = True
             if self.custom_reset:
                 temp = self.create_sub_button_base_2()

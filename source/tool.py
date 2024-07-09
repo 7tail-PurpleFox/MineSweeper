@@ -15,8 +15,8 @@ class Game:
         self.state_dict = state_dict
         self.state = self.state_dict[start_state]
         self.pos = pygame.mouse.get_pos()
-        if os.path.exists("game_setting.json"):
-            with open("game_setting.json","r") as f:
+        if os.path.exists("source/game_setting.json"):
+            with open("source/game_setting.json","r") as f:
                 self.game_setting = json.load(f)
                 self.sound_scale = self.game_setting["sound_scale"]
                 self.music_scale = self.game_setting["music_scale"]
@@ -43,6 +43,9 @@ class Game:
         self.game_setting["sound_scale"] = self.sound_scale
         self.game_setting["music_scale"] = self.music_scale
         self.game_setting["explode_type"] = self.explode_type
+        self.game_setting["custom_field"] = self.custom_field
+        self.game_setting["game_place"] = self.game_place
+        self.game_setting["block_size"] = self.block_size
         feedback = self.state.update(self.background,self.events,self.pos,self.game_setting)
         if self.state.finished:
             next_state = self.state.next
@@ -63,7 +66,7 @@ class Game:
             self.update()
             pygame.display.update()
             self.clock.tick(120)
-        with open("game_setting.json","w") as f:
+        with open("source/game_setting.json","w") as f:
             json.dump(self.game_setting,f)
         pygame.quit()
     def blit_background(self):
@@ -106,8 +109,16 @@ class Game:
     def handle_feedback(self,feedback):
         if feedback == "quit":
             self.running = False
-        elif feedback == "main_menu":
-            self.state = self.state_dict["main_menu"]
+        elif feedback == "reset_size":
+            self.game_place = [9,9,10]
+            self.block_size = 480/9
+            if self.screen.get_width()!=C.MAX_WIDTH:
+                h=self.screen.get_height()
+                ratio=h/(252+self.block_size*self.game_place[1])
+                w=(72+self.block_size*self.game_place[0])*ratio
+                self.screen=pygame.display.set_mode((w, h), pygame.RESIZABLE)
+            self.background=pygame.Surface((72+self.block_size*self.game_place[0],252+self.block_size*self.game_place[1])).convert()
+            self.sub_background=self.background.copy()
         elif "custom_field" in feedback:
             temp=feedback.split()
             self.custom_field=[int(temp[1]),int(temp[2]),int(temp[3])]
@@ -125,10 +136,10 @@ class Game:
                 ratio=h/(252+self.block_size*self.game_place[1])
                 w=(72+self.block_size*self.game_place[0])*ratio
                 self.screen=pygame.display.set_mode((w, h), pygame.RESIZABLE)
-            self.screen.fill(C.BLACK)
             self.background=pygame.Surface((72+self.block_size*self.game_place[0],252+self.block_size*self.game_place[1])).convert()
-            self.background.fill(C.GRAY)
             self.sub_background=self.background.copy()
+        elif "record" in feedback:
+            print(feedback)
         
 def load_image(path, accept={"png", "jpg", "bmp", "gif"}):
     #載入圖片

@@ -32,4 +32,16 @@ for i in range(0,256,16):
     temp=tool.get_image(g,0,i,16,16,scale=3)
     grids.insert(0,temp)
 
+f = images["face"]
+faces = []
+for i in range(0,120,24):
+    temp=tool.get_image(f,0,i,24,24,scale=3)
+    faces.insert(0,temp)
+    
+n = images["number"]
+numbers = []
+for i in range(0,276,23):
+    temp=tool.get_image(n,0,i,13,23,scale=3)
+    numbers.insert(0,temp)
+
 sounds = tool.load_sound(C.SOUND_PATH)
