@@ -37,7 +37,13 @@ class Game:
                                 "custom_field":self.custom_field,
                                 "game_place":self.game_place,
                                 "block_size":self.block_size}
-        
+        self.record=[]
+        for i in os.listdir("source/record"):
+            if i[-5:]==".json":
+                with open("source/record/"+i,"r") as f:
+                    self.record.append([i[:-5],json.load(f)])
+        self.record_temp={}
+            
     def update(self):
         self.background.fill(C.GRAY)
         self.game_setting["sound_scale"] = self.sound_scale
@@ -51,6 +57,8 @@ class Game:
             next_state = self.state.next
             self.state.finished = False
             self.state = self.state_dict[next_state]
+            if next_state=="record":
+                self.state.get_record(self.record)
         if feedback != None:
             self.handle_feedback(feedback)
             
@@ -68,6 +76,16 @@ class Game:
             self.clock.tick(120)
         with open("source/game_setting.json","w") as f:
             json.dump(self.game_setting,f)
+        temp=os.listdir("source/record")
+        for i in self.record:
+            check=True
+            for j in temp:
+                if j[-5:]==".json":
+                    if i[0]==j[:-5]:
+                        check=False
+            if check or i[0]=="Last Game":
+                with open("source/record/"+i[0]+".json","w") as f:
+                    json.dump(i[1],f)
         pygame.quit()
     def blit_background(self):
         if self.screen.get_width()==C.MAX_WIDTH:
@@ -107,9 +125,14 @@ class Game:
         self.screen.blit(self.sub_background,rect.topleft)
         
     def handle_feedback(self,feedback):
-        if feedback == "quit":
+        f=feedback.split('.')
+        if len(f)>2:
+            for i in f[2:]:
+                f[1]+="."
+                f[1]+=i
+        if f[0] == "quit":
             self.running = False
-        elif feedback == "reset_size":
+        elif f[0] == "reset_size":
             self.game_place = [9,9,10]
             self.block_size = 480/9
             if self.screen.get_width()!=C.MAX_WIDTH:
@@ -119,13 +142,13 @@ class Game:
                 self.screen=pygame.display.set_mode((w, h), pygame.RESIZABLE)
             self.background=pygame.Surface((72+self.block_size*self.game_place[0],252+self.block_size*self.game_place[1])).convert()
             self.sub_background=self.background.copy()
-        elif "custom_field" in feedback:
-            temp=feedback.split()
-            self.custom_field=[int(temp[1]),int(temp[2]),int(temp[3])]
+        elif f[0] == "custom_field":
+            temp=f[1].split()
+            self.custom_field=[int(temp[0]),int(temp[1]),int(temp[2])]
             self.game_setting["custom_field"]=self.custom_field
-        elif "game_places" in feedback:
-            temp=feedback.split()
-            self.game_place=[int(temp[1]),int(temp[2]),int(temp[3])]
+        elif f[0] == "game_places":
+            temp=f[1].split()
+            self.game_place=[int(temp[0]),int(temp[1]),int(temp[2])]
             self.game_setting["game_place"]=self.game_place
             if 480/min(self.game_place[0],self.game_place[1])<30:
                 self.block_size=30
@@ -138,8 +161,60 @@ class Game:
                 self.screen=pygame.display.set_mode((w, h), pygame.RESIZABLE)
             self.background=pygame.Surface((72+self.block_size*self.game_place[0],252+self.block_size*self.game_place[1])).convert()
             self.sub_background=self.background.copy()
-        elif "record" in feedback:
-            print(feedback)
+        elif f[0] == "record":
+            temp=f[1].split('/')
+            if "Init" in temp[0]:
+                self.record_temp={}
+                self.record_temp["flags"]=int(temp[3])
+                self.record_temp["width"]=int(temp[4])
+                self.record_temp["height"]=int(temp[5])
+                self.record_temp["mines"]=int(temp[6])
+                self.record_temp["date"]=temp[8]
+                m=temp[7].split(',')
+                mines_map=[]
+                for i in m:
+                    mines_map.append(list(map(int,i.split(' '))))
+                self.record_temp["mines_map"]=mines_map
+                self.record_temp["gaming"]=[]
+                g={}
+                g["time"]=int(temp[1])
+                g["pos"]=list(map(float,temp[2].split(" ")))
+                self.record_temp["gaming"].append(g)
+            else:
+                g={}
+                g["time"]=int(temp[1])
+                g["pos"]=list(map(float,temp[2].split(" ")))
+                if "Map" in temp[0]:
+                    m=temp[3].split(',')
+                    explore_map=[]
+                    for i in m:
+                        explore_map.append(list(map(int,i.split(' '))))
+                    g["mines_explore"]=explore_map
+                if "Sound" in temp[0]:
+                    s=temp[4].split(' ')
+                    s=list(map(int,s))
+                    g["sound"]=s
+                if "Finish" in temp[0]:
+                    m=temp[5].split(',')
+                    final_map=[]
+                    for i in m:
+                        final_map.append(list(map(int,i.split(' '))))
+                    g["final_map"]=final_map
+                if "Flag" in temp[0]:
+                    s=temp[6].split(' ')
+                    s=list(map(int,s))
+                    g["flag"]=s
+                self.record_temp["gaming"].append(g)
+                
+                if "Finish" in temp[0]:
+                    check=False
+                    for i in self.record:
+                        if i[0]=="Last Game":
+                            i[1]=self.record_temp
+                            check=True
+                    if not check:
+                        self.record.append(["Last Game",self.record_temp])
+                
         
 def load_image(path, accept={"png", "jpg", "bmp", "gif"}):
     #載入圖片

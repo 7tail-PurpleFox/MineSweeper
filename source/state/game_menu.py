@@ -34,8 +34,9 @@ class Game_Menu:
         
         self.custom_field_frame = [pygame.Rect(300,271,150,50),pygame.Rect(300,341,150,50),pygame.Rect(300,411,150,50)]
         self.custom_field_activate = [False,False,False]
-        self.custom_reset = False
+        self.start_check = False
         self.custom_reset_rect = pygame.Rect(126,482,300,48)
+        self.key_check=False
         
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen)
@@ -44,6 +45,7 @@ class Game_Menu:
             if event.type == pygame.MOUSEBUTTONUP:
                 if not (self.custom_field_frame[0].collidepoint(pos) or self.custom_field_frame[1].collidepoint(pos) or self.custom_field_frame[2].collidepoint(pos)):
                     self.custom_field_activate = [False,False,False]
+                    self.key_check=False
                 if self.title.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
@@ -78,48 +80,65 @@ class Game_Menu:
                     else:
                         self.custom_field_activate=[False,False,False]
                         self.custom_field_activate[0] = True
+                        self.key_check=False
                 elif self.custom_field_frame[1].collidepoint(pos):
                     if self.custom_field_activate[1]:
                         self.height = 0
                     else:
                         self.custom_field_activate=[False,False,False]
                         self.custom_field_activate[1] = True
+                        self.key_check=False
                 elif self.custom_field_frame[2].collidepoint(pos):
                     if self.custom_field_activate[2]:
                         self.mines = 0
                     else:
                         self.custom_field_activate=[False,False,False]
                         self.custom_field_activate[2] = True
+                        self.key_check=False
                 elif self.custom_reset_rect.collidepoint(pos):
-                    if self.custom_reset:
+                    if self.state=="Custom":
                         self.sound_button.play()
-                        self.width = 9
-                        self.height = 9
-                        self.mines = 10
-                        return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
+                        self.width = 0
+                        self.height = 0
+                        self.mines = 0
+                        return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                 elif self.start.collidepoint(pos):
-                    self.sound_button.play()
-                    self.finished = True
-                    self.next = "game_place"
-                    return "game_places "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
+                    if self.start_check:
+                        self.sound_button.play()
+                        self.finished = True
+                        self.next = "game_place"
+                        return "game_places."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
             elif event.type == pygame.KEYDOWN:
                 if self.state == "Custom":
                     check = False
                     temp=0
                     for i in range(3):
                         if self.custom_field_activate[i]:
-                            if event.key == pygame.K_RETURN:
-                                self.custom_field_activate[i] = False
-                            elif event.key == pygame.K_UP:
-                                self.custom_field_activate[i] = False
-                                if not check:
-                                    temp = (i-1)%3
-                                    check = True
-                            elif event.key == pygame.K_DOWN:
+                            
+                            if event.key == pygame.K_RETURN or event.key == pygame.K_TAB:
                                 self.custom_field_activate[i] = False
                                 if not check:
                                     temp = (i+1)%3
                                     check = True
+                                    self.key_check=False
+                            elif event.key == pygame.K_UP:
+                                if i == 0:
+                                    self.width = self.width if self.width == 99 else self.width+1
+                                elif i == 1:
+                                    self.height = self.height if self.height == 99 else self.height+1
+                                elif i == 2:
+                                    self.mines = self.mines if self.mines == 9999 else self.mines+1
+                                self.key_check=False
+                                return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
+                            elif event.key == pygame.K_DOWN:
+                                if i == 0:
+                                    self.width = self.width if self.width == 0 else self.width-1
+                                elif i == 1:
+                                    self.height = self.height if self.height == 0 else self.height-1
+                                elif i == 2:
+                                    self.mines = self.mines if self.mines == 0 else self.mines-1
+                                self.key_check=False
+                                return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                             elif event.key == pygame.K_BACKSPACE:
                                 if i == 0:
                                     self.width = 0 if len(str(self.width)) == 1 else int(str(self.width)[:-1])
@@ -127,13 +146,23 @@ class Game_Menu:
                                     self.height = 0 if len(str(self.height)) == 1 else int(str(self.height)[:-1])
                                 elif i == 2:
                                     self.mines = 0 if len(str(self.mines)) == 1 else int(str(self.mines)[:-1])
+                                return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                             elif event.key in range(48,58):
-                                if i == 0:
-                                    self.width = self.width if len(str(self.width)) == 2 else int(str(self.width)+chr(event.key))
-                                elif i == 1:
-                                    self.height = self.height if len(str(self.height)) == 2 else int(str(self.height)+chr(event.key))
-                                elif i == 2:
-                                    self.mines = self.mines if len(str(self.mines)) == 3 else int(str(self.mines)+chr(event.key))
+                                if self.key_check:
+                                    if i == 0:
+                                        self.width = self.width if len(str(self.width)) == 2 else int(str(self.width)+chr(event.key))
+                                    elif i == 1:
+                                        self.height = self.height if len(str(self.height)) == 2 else int(str(self.height)+chr(event.key))
+                                    elif i == 2:
+                                        self.mines = self.mines if len(str(self.mines)) == 4 else int(str(self.mines)+chr(event.key))
+                                else:
+                                    if i == 0:
+                                        self.width = int(chr(event.key))
+                                    elif i == 1:
+                                        self.height = int(chr(event.key))
+                                    elif i == 2:
+                                        self.mines = int(chr(event.key))
+                                    self.key_check=True
                                 return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                     if check:
                         self.custom_field_activate[temp] = True
@@ -145,11 +174,12 @@ class Game_Menu:
                 temp = pygame.transform.scale(temp,(480,96))
                 screen.blit(temp,self.title.topleft)
             elif self.start.collidepoint(pos):
-                temp = pygame.Surface((500,100))
-                temp.fill(C.GRAY)
-                self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
-                temp = pygame.transform.scale(temp,(480,96))
-                screen.blit(temp,self.start.topleft)
+                if self.start_check:
+                    temp = pygame.Surface((500,100))
+                    temp.fill(C.GRAY)
+                    self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
+                    temp = pygame.transform.scale(temp,(480,96))
+                    screen.blit(temp,self.start.topleft)
             elif self.sub_titles[self.state][0].collidepoint(pos):
                 if self.sub_titles[self.state][0].width==60:
                     temp = pygame.Surface((65,52))
@@ -196,7 +226,7 @@ class Game_Menu:
                     temp.blit(temp2,(0,0))
                     screen.blit(temp,self.sub_titles[self.state][3].topleft)
             elif self.custom_reset_rect.collidepoint(pos):
-                    if self.custom_reset:
+                    if self.state=="Custom":
                         temp = pygame.Surface((325,52))
                         temp.fill(C.GRAY)
                         self.blit_title(temp,'Reset',setup.mine_sweeper_font_16,2)
@@ -261,9 +291,10 @@ class Game_Menu:
         temp = self.create_button_base()
         self.blit_title(temp,'Select Mode',setup.mine_sweeper_font_32,3)
         screen.blit(temp,self.title.topleft)
-        temp = self.create_button_base()
-        self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
-        screen.blit(temp,self.start.topleft)
+        if self.state != "Custom":
+            temp = self.create_button_base()
+            self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
+            screen.blit(temp,self.start.topleft)
         
         
         temp = self.create_sub_button_base()
@@ -272,7 +303,7 @@ class Game_Menu:
         temp2.blit(g,(-26,0))
         temp2=pygame.transform.rotate(temp2,180)
         temp3 = self.create_dark_sub_button_base()
-        self.custom_reset = False
+        self.start_check = False if self.state == "Custom" else True
         if self.state == "Beginner":
             screen.blit(temp,self.sub_titles[self.state][0].topleft)
             screen.blit(temp2,(self.sub_titles[self.state][0].topleft[0]+297,self.sub_titles[self.state][0].topleft[1]+48))
@@ -336,30 +367,26 @@ class Game_Menu:
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Mines :',C.WHITE,(200-3,436+3),True)
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Mines :',C.BLACK,(200,436),True)
             text=''
-            if self.width < 9:
-                text='Width must be greater than 9'
-            elif self.height < 9:
-                text='Height must be greater than 9'
-            elif self.mines < 10:
-                text='Mines must be greater than 10'
-            elif self.width > 30:
-                text='Width must be less than 30'
-            elif self.height > 24:
-                text='Height must be less than 24'
+            temp = self.create_sub_button_base_2()
+            self.blit_title(temp,'Reset',setup.mine_sweeper_font_16,2)
+            screen.blit(temp,self.custom_reset_rect.topleft)
+            if self.width <= 0:
+                text='Width must be greater than 0'
+            elif self.height <= 0:
+                text='Height must be greater than 0'
             elif self.mines > self.width*self.height:
                 text='Mines must be less than '+str(self.width*self.height)
             elif self.state=="Custom":
-                self.custom_reset = True
-            if self.custom_reset:
-                temp = self.create_sub_button_base_2()
-                self.blit_title(temp,'Reset',setup.mine_sweeper_font_16,2)
-                screen.blit(temp,self.custom_reset_rect.topleft)
+                self.start_check = True
+            if self.start_check:
+                temp = self.create_button_base()
+                self.blit_title(temp,'Start',setup.mine_sweeper_font_32,3)
+                screen.blit(temp,self.start.topleft)
             else:
-                tool.blit_text(screen,setup.mine_sweeper_font_16,text,C.WHITE,(276+3,506+3),True)
-                tool.blit_text(screen,setup.mine_sweeper_font_16,text,C.WHITE,(276-3,506-3),True)
-                tool.blit_text(screen,setup.mine_sweeper_font_16,text,C.WHITE,(276+3,506-3),True)
-                tool.blit_text(screen,setup.mine_sweeper_font_16,text,C.WHITE,(276-3,506+3),True)
-                tool.blit_text(screen,setup.mine_sweeper_font_16,text,C.BLACK,(276,506),True)
+                temp = pygame.Surface((480,96)).convert()
+                temp.fill(C.GRAY)
+                self.blit_title(temp,text,setup.mine_sweeper_font_16,3)
+                screen.blit(temp,self.start.topleft)
         else:
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Width : '+str(self.width),C.WHITE,(276+3,296+3),True)
             tool.blit_text(screen,setup.mine_sweeper_font_24,'Width : '+str(self.width),C.WHITE,(276-3,296-3),True)
