@@ -27,6 +27,7 @@ class MainMenu:
         self.options = pygame.Rect(36,354,480,96)
         self.tutorial = pygame.Rect(36,450,480,96)
         self.exit = pygame.Rect(36,546,480,96)
+        self.button_enable=True
         
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen)
@@ -34,7 +35,7 @@ class MainMenu:
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
         for event in events:
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONUP and self.button_enable:
                 if self.new_game.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
@@ -51,7 +52,9 @@ class MainMenu:
                     return "quit"
                 elif self.title.collidepoint(pos):
                     sound_explosion.play()
+        self.button_enable=False
         if any(pygame.mouse.get_pressed()):
+            self.button_enable=True
             if self.new_game.collidepoint(pos):
                 temp = pygame.Surface((500,100))
                 temp.fill(C.GRAY)

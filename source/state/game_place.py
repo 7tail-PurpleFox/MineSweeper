@@ -40,6 +40,8 @@ class Game_Place:
         self.explore_check=False
         self.win_check=0
         self.record_flag=[-1,-1]
+        self.button_enable=True
+        
         
     def update(self,screen,events,pos,game_setting):
         sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
@@ -65,8 +67,7 @@ class Game_Place:
             self.flags=m
         self.set_backgroud(screen,w,h,m,block_size)
         for event in events:
-            if event.type==pygame.MOUSEBUTTONUP:
-                self.face_check=False
+            if event.type==pygame.MOUSEBUTTONUP and self.button_enable:
                 if self.face_rect.collidepoint(pos):
                     self.sound_button.play()
                     self.sound_list[0]=True
@@ -85,6 +86,7 @@ class Game_Place:
                         self.sound_list=[False,False,False,False]
                         self.explore_check=False
                         self.win_check=0
+                        self.face_check=False
                         return "reset_size"
                     else:
                         self.mines_rect = []
@@ -99,7 +101,8 @@ class Game_Place:
                         self.sound_list=[False,False,False,False]
                         self.explore_check=False
                         self.win_check=0
-                if not (self.lose or self.win):
+                        self.face_check=False 
+                if not (self.lose or self.win) and self.face_check==False:
                     for a in range(len(self.mines_rect)):
                         for b in range(len(self.mines_rect[a])):
                             if self.mines_rect[a][b].collidepoint(pos):
@@ -137,6 +140,7 @@ class Game_Place:
                                             self.explore_list.append([a,b])
                                             self.sound_click.play()
                                             self.sound_list[2]=True
+                self.face_check=False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.face_rect.collidepoint(pos):
                     self.face_check=True
@@ -158,7 +162,9 @@ class Game_Place:
                                             self.sound_finish.play()
                                             self.sound_list[3]=True
                                             self.mines_map=[[14 for a in range(w)] for a in range(h)]
+        self.button_enable=False
         if any(pygame.mouse.get_pressed()):
+            self.button_enable=True
             if self.face_check:
                 if self.face_rect.collidepoint(pos):
                     temp=setup.faces[4]

@@ -15,6 +15,7 @@ class Game:
         self.state_dict = state_dict
         self.state = self.state_dict[start_state]
         self.pos = pygame.mouse.get_pos()
+        self.record_info = ""
         if os.path.exists("source/game_setting.json"):
             with open("source/game_setting.json","r") as f:
                 self.game_setting = json.load(f)
@@ -53,14 +54,17 @@ class Game:
         self.game_setting["game_place"] = self.game_place
         self.game_setting["block_size"] = self.block_size
         feedback = self.state.update(self.background,self.events,self.pos,self.game_setting)
+        if feedback != None:
+            self.handle_feedback(feedback)
         if self.state.finished:
             next_state = self.state.next
             self.state.finished = False
             self.state = self.state_dict[next_state]
             if next_state=="record":
                 self.state.get_record(self.record)
-        if feedback != None:
-            self.handle_feedback(feedback)
+            elif next_state=="record_info":
+                self.state.get_record_info(self.record_info,self.record)
+        
             
     def run(self):
         while self.running:
@@ -214,6 +218,8 @@ class Game:
                             check=True
                     if not check:
                         self.record.append(["Last Game",self.record_temp])
+        elif f[0] == "record_info":
+            self.record_info=f[1]
                 
         
 def load_image(path, accept={"png", "jpg", "bmp", "gif"}):

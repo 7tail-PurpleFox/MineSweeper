@@ -34,6 +34,7 @@ class Record:
         self.slide_rect=pygame.Rect(26,680,500,23)
         self.cursor_rect=pygame.Rect(26,670,38,40)
         self.slide_check=False
+        self.button_enable=True
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen,pos)
         sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
@@ -65,45 +66,55 @@ class Record:
             elif event.type == pygame.MOUSEBUTTONUP:
                 if not self.slide_check:
                     mine_check=True
-                    if self.record_rect.collidepoint(pos):
-                        self.sound_button.play()
-                        self.finished = True
-                        self.next = 'main_menu'
-                    else:
-                        for i in range(len(self.record_list_rect)):
-                            rect=self.record_list_rect[i].copy()
-                            rect.y+=self.slide_y
-                            if rect.collidepoint(pos):
-                                if rect.y<162:
-                                    if rect.y+60>=162:
-                                        if pos[1]>162:
-                                            self.sound_button.play()
-                                            self.finished = True
-                                            self.next = 'record_info'
-                                            mine_check=False
-                                elif rect.y+60>549:
-                                    if rect.y<=549:
-                                        if pos[1]<549:
-                                            self.sound_button.play()
-                                            self.finished = True
-                                            self.next = 'record_info'
-                                            mine_check=False
-                                else:
-                                    self.sound_button.play()
-                                    self.finished = True
-                                    self.next = 'record_info'
-                                    mine_check=False
-                        if self.mine_rect.collidepoint(pos):
-                            if mine_check:
-                                sound_explosion.play()
+                    if self.button_enable:
+                        if self.record_rect.collidepoint(pos):
+                            self.sound_button.play()
+                            self.finished = True
+                            self.next = 'main_menu'
+                        else:
+                            for i in range(len(self.record_list_rect)):
+                                rect=self.record_list_rect[i].copy()
+                                rect.y+=self.slide_y
+                                if rect.collidepoint(pos):
+                                    if rect.y<162:
+                                        if rect.y+60>=162:
+                                            if pos[1]>162:
+                                                self.sound_button.play()
+                                                self.finished = True
+                                                self.next = 'record_info'
+                                                mine_check=False
+                                                return "record_info."+self.record_list[i]
+                                    elif rect.y+60>549:
+                                        if rect.y<=549:
+                                            if pos[1]<549:
+                                                self.sound_button.play()
+                                                self.finished = True
+                                                self.next = 'record_info'
+                                                mine_check=False
+                                                return "record_info."+self.record_list[i]
+                                    else:
+                                        self.sound_button.play()
+                                        self.finished = True
+                                        self.next = 'record_info'
+                                        mine_check=False
+                                        return "record_info."+self.record_list[i]
+                            if self.mine_rect.collidepoint(pos):
+                                if mine_check:
+                                    sound_explosion.play()
+                            if self.last_game_rect.collidepoint(pos):
+                                self.sound_button.play()
+                                self.finished = True
+                                self.next = 'record_info'
+                                return "record_info.Last Game"
                         
                 self.slide_check=False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.slide_rect.collidepoint(pos) or self.cursor_rect.collidepoint(pos):
                     self.slide_check=True
             
-                
+        self.button_enable=False
         if any(pygame.mouse.get_pressed()):
+            self.button_enable=True
             if self.slide_check:
                 temp=(387-len(self.record_list)*60)
                 self.slide_y=temp*(pos[0]-46)/462
@@ -148,6 +159,7 @@ class Record:
                                     screen.blit(tool.get_image(temp,0,0,480,549-(self.record_list_rect[i].topleft[1]+self.slide_y)),(self.record_list_rect[i].topleft[0],self.record_list_rect[i].topleft[1]+self.slide_y))
                         else:
                             screen.blit(temp,rect.topleft)
+        
                 
     def set_backgroud(self,screen,pos):
         screen.blit(self.corner_up_left,(0,0))

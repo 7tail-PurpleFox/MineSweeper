@@ -37,12 +37,13 @@ class Game_Menu:
         self.start_check = False
         self.custom_reset_rect = pygame.Rect(126,482,300,48)
         self.key_check=False
+        self.button_enable=True
         
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen)
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
         for event in events:
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONUP and self.button_enable:
                 if not (self.custom_field_frame[0].collidepoint(pos) or self.custom_field_frame[1].collidepoint(pos) or self.custom_field_frame[2].collidepoint(pos)):
                     self.custom_field_activate = [False,False,False]
                     self.key_check=False
@@ -166,7 +167,9 @@ class Game_Menu:
                                 return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                     if check:
                         self.custom_field_activate[temp] = True
+        self.button_enable=False
         if any(pygame.mouse.get_pressed()):
+            self.button_enable=True
             if self.title.collidepoint(pos):
                 temp = pygame.Surface((500,100))
                 temp.fill(C.GRAY)
