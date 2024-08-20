@@ -198,7 +198,7 @@ class Game:
                     s=temp[4].split(' ')
                     s=list(map(int,s))
                     g["sound"]=s
-                if "Finish" in temp[0]:
+                if "Lose" in temp[0] or "Win" in temp[0]:
                     m=temp[5].split(',')
                     final_map=[]
                     for i in m:
@@ -210,7 +210,11 @@ class Game:
                     g["flag"]=s
                 self.record_temp["gaming"].append(g)
                 
-                if "Finish" in temp[0]:
+                if "Lose" in temp[0] or "Win" in temp[0]:
+                    if "Lose" in temp[0]:
+                        self.record_temp["result"]="Lose"
+                    else:
+                        self.record_temp["result"]="Win"
                     check=False
                     for i in self.record:
                         if i[0]=="Last Game":

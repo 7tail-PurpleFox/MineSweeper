@@ -206,8 +206,7 @@ class Game_Place:
             temp+=now.strftime("%Y %m %d %H %M %S")
             return temp
         elif self.record_check==True and self.record_check2==False:
-            s="record."
-            s+="record/"+str(self.record_time)+"/"+str(pos[0])+" "+str(pos[1])
+            s="record/"+str(self.record_time)+"/"+str(pos[0])+" "+str(pos[1])
             s+="/"
             if self.explore_check:
                 s="Map "+s
@@ -228,7 +227,10 @@ class Game_Place:
             s+="/"
             if (self.lose or self.win):
                 self.record_check2=True
-                s="Finish "+s
+                if self.lose:
+                    s="Lose "+s
+                else:
+                    s="Win "+s
                 for i in self.mines_map:
                     for j in i:
                         s+=str(j)
@@ -243,6 +245,7 @@ class Game_Place:
                     s+=str(int(i))
                     s+=' '
                 s=s[:-1]
+            s="record."+s
             return s
     def set_backgroud(self,screen,width,height,mines,block_size):
         w=int(width*block_size+36)
