@@ -164,7 +164,7 @@ class Game_Menu:
                                     elif i == 2:
                                         self.mines = int(chr(event.key))
                                     self.key_check=True
-                                return "custom_field "+str(self.width)+" "+str(self.height)+" "+str(self.mines)
+                                return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                     if check:
                         self.custom_field_activate[temp] = True
         self.button_enable=False
