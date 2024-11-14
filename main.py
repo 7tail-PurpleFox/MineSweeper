@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import pygame
 from source import tool, setup
 from source.state import main_menu, game_place, game_menu, record, record_info

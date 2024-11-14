@@ -378,7 +378,7 @@ class Game_Menu:
             elif self.height <= 0:
                 text='Height must be greater than 0'
             elif self.mines > self.width*self.height:
-                text='Mines must be less than '+str(self.width*self.height)
+                text='Mines must be at most '+str(self.width*self.height)
             elif self.state=="Custom":
                 self.start_check = True
             if self.start_check:

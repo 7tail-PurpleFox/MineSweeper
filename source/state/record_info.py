@@ -30,10 +30,14 @@ class Record_Info:
         self.save_rect = pygame.Rect(56,540,180,60)
         self.record = {}
         self.record_info = ""
+        self.record_list = []
         self.button_enable=True
         self.bv = 0
         self.replay_play = pygame.transform.scale(setup.replay_play, (36,36))
         self.rename = False
+        self.rename_cancel_rect = pygame.Rect(56,490,180,60)
+        self.rename_save_rect = pygame.Rect(316,490,180,60)
+        self.rename_text = ""
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen,pos)
         sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
@@ -51,8 +55,23 @@ class Record_Info:
                 if self.save_rect.collidepoint(pos):
                     self.sound_button.play()
                     self.rename = True
+                    if self.record_info == "Last Game":
+                        self.rename_text = ""
+                    else:
+                        self.rename_text = self.record_info
             elif event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == True:
-                self.rename = False
+                if self.rename_cancel_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    self.rename = False
+                if self.rename_save_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    pass
+            elif event.type == pygame.KEYDOWN:
+                if self.rename == True:
+                    if event.key == pygame.K_BACKSPACE:
+                        self.rename_text = self.rename_text[:-1]
+                    else:
+                        self.rename_text += event.unicode
                 
         self.button_enable=False
         if any(pygame.mouse.get_pressed()):
@@ -84,6 +103,19 @@ class Record_Info:
                         self.blit_title2(temp,setup.mine_sweeper_font_16,"Rename",C.BLACK,(99,33),2,C.WHITE,True)
                     temp = pygame.transform.scale(temp,(180,60))
                     screen.blit(temp,self.save_rect.topleft)
+            elif self.rename == True:
+                if self.rename_cancel_rect.collidepoint(pos):
+                    temp = pygame.Surface((198,66))
+                    temp.fill(C.GRAY)
+                    self.blit_title2(temp,setup.mine_sweeper_font_16,"Cancel",C.BLACK,(99,33),2,C.WHITE,True)
+                    temp = pygame.transform.scale(temp,(180,60))
+                    screen.blit(temp,self.rename_cancel_rect.topleft)
+                if self.rename_save_rect.collidepoint(pos):
+                    temp = pygame.Surface((198,66))
+                    temp.fill(C.GRAY)
+                    self.blit_title2(temp,setup.mine_sweeper_font_16,"Save",C.BLACK,(99,33),2,C.WHITE,True)
+                    temp = pygame.transform.scale(temp,(180,60))
+                    screen.blit(temp,self.rename_save_rect.topleft)
     def set_backgroud(self,screen,pos):
         screen.blit(self.corner_up_left,(0,0))
         for i in range(36,516,6):
@@ -158,13 +190,33 @@ class Record_Info:
             temp.fill(C.BLACK)
             temp.set_alpha(200)
             screen.blit(temp,(0,0))
-                         
+            temp = self.create_gray_base(500,400)
+            tool.blit_image(screen,temp,(276,366),True)
+            temp = self.create_button_base3()
+            self.blit_title2(temp,setup.mine_sweeper_font_16,"Cancel",C.BLACK,(90,30),2,C.WHITE,True)
+            tool.blit_image(screen,temp,(146,520),True)
+            temp = self.create_button_base3()
+            self.blit_title2(temp,setup.mine_sweeper_font_16,"Save",C.BLACK,(90,30),2,C.WHITE,True)
+            tool.blit_image(screen,temp,(406,520),True)
+            if self.record_info == "Last Game":
+                self.blit_title2(screen,setup.mine_sweeper_font_24,"New Name",C.BLACK,(276,200),2,C.WHITE,True)
+            else:
+                self.blit_title2(screen,setup.mine_sweeper_font_24,"Rename",C.BLACK,(276,200),2,C.WHITE,True)
+            temp = pygame.Surface((406,66))
+            temp.fill(C.DARK_GRAY)
+            screen.blit(temp,(73,263))
+            temp = pygame.Surface((400,60))
+            temp.fill(C.WHITE)
+            tool.blit_text(temp,setup.mine_sweeper_font_24,self.rename_text,C.BLACK,(200,30),True)
+            screen.blit(temp,(76,266))
+
     def get_record_info(self,record_info,record):
         self.record_info = record_info
         for i in record:
             if i[0] == record_info:
                 self.record = i[1]
                 break
+        self.record_list = record
         self.bv = self.count_3bv(self.record["mines_map"])
         
     def create_button_base(self):
@@ -216,7 +268,39 @@ class Record_Info:
         for i in range(30,150,30):
             temp.blit(temp2,(i,30))
         return temp
-
+    def create_gray_base(self,width,height):
+        temp = pygame.Surface((width,height))
+        temp.fill(C.GRAY)
+        temp2 = setup.grids[15].copy()
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(-12,0))
+        for i in range(0,width,24):
+            temp.blit(temp3,(i,0))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(-12,-24))
+        for i in range(0,width,24):
+            temp.blit(temp3,(i,height-24))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(0,-12))
+        for i in range(0,height,24):
+            temp.blit(temp3,(0,i))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(-24,-12))
+        for i in range(0,height,24):
+            temp.blit(temp3,(width-24,i))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(0,0))
+        temp.blit(temp3,(0,0))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(-24,0))
+        temp.blit(temp3,(width-24,0))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(0,-24))
+        temp.blit(temp3,(0,height-24))
+        temp3 = pygame.Surface((24,24))
+        temp3.blit(setup.grids[15],(-24,-24))
+        temp.blit(temp3,(width-24,height-24))
+        return temp
     def count_3bv(self,map):
         count = 0
         global visited
