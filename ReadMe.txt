@@ -1,2 +1,6 @@
-目標:boss
-boss:給數字玩家放炸彈、給運算符號玩家放炸彈符合公式
+
+recommend environment: Windows, linux
+'python main.py' to play
+you can also execute 'MineSweeper.exe' to play(Windows only)
+Remember to 'pip install -r requirements.txt' before runnig main.py
+It may have some problem while run on linux, like you need to use Xrg to run gui instead of wayland and you may still to pip install tkinter to get mouse info.
