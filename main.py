@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import pygame
+import pygame, os
 from source import tool, setup
 from source.state import main_menu, game_place, game_menu, record, record_info
 
@@ -13,4 +13,6 @@ def main():
     game.run()
 
 if __name__ == '__main__':
+    if not os.path.exists('./source/record'):
+        os.makedirs('./source/record')
     main()
