@@ -1,14 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 # -*- coding: UTF-8 -*-
 import pygame, os
 from source import tool, setup
-from source.state import main_menu, game_place, game_menu, record, record_info
+from source.state import main_menu, game_place, game_menu, record, record_info, record_game_place
 
 def main():
     state_dict = { 'main_menu' : main_menu.MainMenu(),
                    'game_place' : game_place.Game_Place(), 
                    'game_menu' : game_menu.Game_Menu(),
                    'record' : record.Record(),
-                   'record_info' : record_info.Record_Info()}
+                   'record_info' : record_info.Record_Info(),
+                   'record_game_place' : record_game_place.Record_Game_Place()}
     game = tool.Game(state_dict, 'main_menu')
     game.run()
 

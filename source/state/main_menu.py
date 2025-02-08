@@ -19,7 +19,8 @@ class MainMenu:
         self.sound_explosion_1 = setup.sounds['explosion_1']
         self.sound_explosion_2 = setup.sounds['explosion_2']
         self.sound_button = setup.sounds['button']
-        
+        self.sound_click = setup.sounds["click"]
+        self.sound_finish = setup.sounds["finish"]
 
         self.title = pygame.Rect(36,33,480,96)
         self.new_game = pygame.Rect(36,162,480,96)
@@ -34,6 +35,8 @@ class MainMenu:
         sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP and self.button_enable:
                 if self.new_game.collidepoint(pos):

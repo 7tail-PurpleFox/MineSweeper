@@ -41,6 +41,7 @@ class Game_Place:
         self.win_check=0
         self.record_flag=[-1,-1]
         self.button_enable=True
+        self.first_grid=[-1,-1]
         
         
     def update(self,screen,events,pos,game_setting):
@@ -51,7 +52,8 @@ class Game_Place:
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         self.sound_list=[False,False,False,False]
         self.explore_check=False
-        self.record_flag=[-1,-1]
+        if self.record_check==True:
+            self.record_flag=[-1,-1]
         w=game_setting["game_place"][0]
         h=game_setting["game_place"][1]
         m=game_setting["game_place"][2]
@@ -87,6 +89,8 @@ class Game_Place:
                         self.explore_check=False
                         self.win_check=0
                         self.face_check=False
+                        self.flags=0
+                        self.first_grid=[-1,-1]
                         return "reset_size"
                     else:
                         self.mines_rect = []
@@ -102,11 +106,14 @@ class Game_Place:
                         self.explore_check=False
                         self.win_check=0
                         self.face_check=False 
+                        self.flags=0
+                        self.first_grid=[-1,-1]
                 if not (self.lose or self.win) and self.face_check==False:
                     for a in range(len(self.mines_rect)):
                         for b in range(len(self.mines_rect[a])):
                             if self.mines_rect[a][b].collidepoint(pos):
                                 if len(self.mines_map)==0:
+                                    self.first_grid=[a,b]
                                     self.time=pygame.time.get_ticks()
                                     self.mines_map=[[0 for i in range(w)] for i in range(h)]
                                     temp=random.sample(range(w*h),m)
@@ -204,11 +211,17 @@ class Game_Place:
             temp=temp+"/"
             now=datetime.datetime.now()
             temp+=now.strftime("%Y %m %d %H %M %S")
+            temp=temp+"/"
+            temp+=str(self.record_flag[0])+" "+str(self.record_flag[1])
+            temp=temp+"/"
+            temp+=str(int(self.sound_list[0]))+" "+str(int(self.sound_list[1]))+" "+str(int(self.sound_list[2]))+" "+str(int(self.sound_list[3]))
+            temp=temp+"/"
+            temp+=str(self.first_grid[0])+" "+str(self.first_grid[1])
             return temp
         elif self.record_check==True and self.record_check2==False:
             s="record/"+str(self.record_time)+"/"+str(pos[0])+" "+str(pos[1])
             s+="/"
-            if self.explore_check:
+            if self.explore_check or self.record_time==0:
                 s="Map "+s
                 for i in self.mines_explore:
                     for j in i:
@@ -405,12 +418,11 @@ class Game_Place:
                     for j in [-1,0,1]:
                         if (not (k==0 and j==0)) and (0<=i[0]+k and i[0]+k<h) and(0<=i[1]+j and i[1]+j<w):
                             temp.append([i[0]+k,i[1]+j])
-        if len(self.explore_list)>0 and len(temp)==0:
+        #if len(self.explore_list)>0 and len(temp)==0:
+        if len(self.explore_list)>0:
             self.explore_check=True
             self.check_map(w,h,m)
-        del self.explore_list
         self.explore_list=temp
-        del temp
     def check_map(self,w,h,m):
         if self.win_check==w*h-m:
             self.win=True

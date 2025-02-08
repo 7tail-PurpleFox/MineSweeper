@@ -64,6 +64,8 @@ class Game:
                 self.state.get_record(self.record)
             elif next_state=="record_info":
                 self.state.get_record_info(self.record_info,self.record)
+            elif next_state=="record_game_place":
+                self.state.get_record_game_place(self.record_info,self.record)
         
             
     def run(self):
@@ -81,15 +83,11 @@ class Game:
         with open("source/game_setting.json","w") as f:
             json.dump(self.game_setting,f)
         temp=os.listdir("source/record")
+        for i in temp:
+            os.remove("source/record/"+i)
         for i in self.record:
-            check=True
-            for j in temp:
-                if j[-5:]==".json":
-                    if i[0]==j[:-5]:
-                        check=False
-            if check or i[0]=="Last Game":
-                with open("source/record/"+i[0]+".json","w") as f:
-                    json.dump(i[1],f)
+            with open("source/record/"+i[0]+".json","w") as f:
+                json.dump(i[1],f)
         pygame.quit()
     def blit_background(self):
         if self.screen.get_width()==C.MAX_WIDTH:
@@ -174,6 +172,7 @@ class Game:
                 self.record_temp["height"]=int(temp[5])
                 self.record_temp["mines"]=int(temp[6])
                 self.record_temp["date"]=temp[8]
+                flag=temp[9].split(' ')
                 m=temp[7].split(',')
                 mines_map=[]
                 for i in m:
@@ -183,6 +182,10 @@ class Game:
                 g={}
                 g["time"]=int(temp[1])
                 g["pos"]=list(map(float,temp[2].split(" ")))
+                if int(flag[0])!=-1 and int(flag[1])!=-1:
+                    g["flag"]=[int(flag[0]),int(flag[1])]
+                g["sound"]=list(map(int,temp[10].split(' ')))
+                g["first_grid"]=list(map(int,temp[11].split(' ')))
                 self.record_temp["gaming"].append(g)
             else:
                 g={}

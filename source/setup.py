@@ -28,6 +28,8 @@ replay_start = images["replay_start"]
 replay_previous = images["replay_previous"]
 replay_next = images["replay_next"]
 replay_end = images["replay_end"]
+replay_pause = images["replay_pause"]
+mouse_cursor = images["mouse_cursor"]
 
 minecraft_font_32 = fonts_32['minecraft']
 mine_sweeper_font_32 = fonts_32['mine_sweeper']

@@ -102,10 +102,16 @@ class Record:
                                 if mine_check:
                                     sound_explosion.play()
                             if self.last_game_rect.collidepoint(pos):
-                                self.sound_button.play()
-                                self.finished = True
-                                self.next = 'record_info'
-                                return "record_info.Last Game"
+                                check=True
+                                for i in self.record:
+                                    if i[0]=="Last Game":
+                                        check=False
+                                        break
+                                if not check:
+                                    self.sound_button.play()
+                                    self.finished = True
+                                    self.next = 'record_info'
+                                    return "record_info.Last Game"
                         
                 self.slide_check=False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -129,11 +135,17 @@ class Record:
                     elif self.slide_y<0:
                         self.slide_y=0
             elif self.last_game_rect.collidepoint(pos):
-                temp = pygame.Surface((504,63))
-                temp.fill(C.GRAY)
-                self.blit_title(temp,'Last Game',setup.mine_sweeper_font_24,2)
-                temp = pygame.transform.scale(temp,(480,60))
-                screen.blit(temp,self.last_game_rect.topleft)
+                check=True
+                for i in self.record:
+                    if i[0]=="Last Game":
+                        check=False
+                        break
+                if not check:
+                    temp = pygame.Surface((504,63))
+                    temp.fill(C.GRAY)
+                    self.blit_title(temp,'Last Game',setup.mine_sweeper_font_24,2)
+                    temp = pygame.transform.scale(temp,(480,60))
+                    screen.blit(temp,self.last_game_rect.topleft)
             elif self.record_rect.collidepoint(pos):
                 temp = pygame.Surface((500,100))
                 temp.fill(C.GRAY)

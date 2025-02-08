@@ -1,4 +1,5 @@
 import pygame
+import copy
 from .. import setup
 from .. import constant as C
 from .. import tool
@@ -38,7 +39,15 @@ class Record_Info:
         self.rename_cancel_rect = pygame.Rect(56,490,180,60)
         self.rename_save_rect = pygame.Rect(316,490,180,60)
         self.rename_text = ""
+        self.delete = False
+        self.duplicated_name = pygame.time.get_ticks()
+        self.blank_name = pygame.time.get_ticks()
+        self.forbidden_name = pygame.time.get_ticks()
     def update(self,screen,events,pos,game_setting):
+        # print(self.record_info)
+        # for i in self.record_list:
+        #     print(i[0],end=" ")
+        # print()
         self.set_backgroud(screen,pos)
         sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
@@ -46,12 +55,13 @@ class Record_Info:
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         for event in events:
-            if event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == False:
+            if event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == False and self.delete == False:
                 if self.title_rect.collidepoint(pos):
                     self.sound_button.play()
                     self.finished = True
                     self.next = 'record'
                     self.rename = False
+                    self.delete = False
                 if self.save_rect.collidepoint(pos):
                     self.sound_button.play()
                     self.rename = True
@@ -59,24 +69,82 @@ class Record_Info:
                         self.rename_text = ""
                     else:
                         self.rename_text = self.record_info
-            elif event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == True:
+                if self.delete_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    self.delete = True
+                if self.play_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    self.finished = True
+                    self.next = 'record_game_place'
+                    self.rename = False
+                    self.delete = False
+                    return "game_places."+str(self.record["width"])+" "+str(self.record["height"])+" "+str(self.record["mines"])
+            elif event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == True and self.delete == False:
                 if self.rename_cancel_rect.collidepoint(pos):
                     self.sound_button.play()
                     self.rename = False
                 if self.rename_save_rect.collidepoint(pos):
                     self.sound_button.play()
-                    pass
+                    if self.rename_text=="":
+                        self.blank_name=pygame.time.get_ticks()
+                        continue
+                    if self.rename_text.lower()=="last game":
+                        self.forbidden_name=pygame.time.get_ticks()
+                        continue
+                    if self.record_info == "Last Game":
+                        check=False
+                        for i in self.record_list:
+                            if i[0].lower()==self.rename_text.lower():
+                                check=True
+                                self.duplicated_name=pygame.time.get_ticks()
+                                break
+                        if not check:
+                            self.record_info=self.rename_text
+                            self.record_list.append((self.record_info,self.record))
+                            self.rename=False
+                            return "record_info."+self.record_info
+                    else:
+                        check=False
+                        for i in self.record_list:
+                            if i[0].lower()==self.rename_text.lower():
+                                check=True
+                                self.duplicated_name=pygame.time.get_ticks()
+                                break
+                        if not check:
+                            for i in range(len(self.record_list)):
+                                if self.record_list[i][0]==self.record_info:
+                                    self.record_list[i] = (self.rename_text, self.record_list[i][1])
+                                    self.record_info=self.rename_text
+                                    self.rename=False
+                                    return "record_info."+self.record_info
+            elif event.type == pygame.MOUSEBUTTONUP and self.button_enable and self.rename == False and self.delete == True:
+                if self.rename_cancel_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    self.delete = False
+                if self.rename_save_rect.collidepoint(pos):
+                    self.sound_button.play()
+                    for i in range(len(self.record_list)):
+                        if self.record_list[i][0]==self.record_info:
+                            self.record_list.pop(i)
+                            self.finished = True
+                            self.next = 'record'
+                            self.rename = False
+                            self.delete = False
+                            if len(self.record_list) != 0:
+                                self.record_info = self.record_list[0][0]
+                                return "record_info."+self.record_list[0][0]
+                            break
             elif event.type == pygame.KEYDOWN:
                 if self.rename == True:
                     if event.key == pygame.K_BACKSPACE:
                         self.rename_text = self.rename_text[:-1]
                     else:
-                        self.rename_text += event.unicode
-                
+                        if event.unicode not in ["\\", "/", ":", "*", "?", "\"", "<", ">", "|"]:
+                            self.rename_text += event.unicode
         self.button_enable=False
         if any(pygame.mouse.get_pressed()):
             self.button_enable=True
-            if self.rename == False:
+            if self.rename == False and self.delete == False:
                 if self.title_rect.collidepoint(pos):
                     temp = pygame.Surface((500,100))
                     temp.fill(C.GRAY)
@@ -103,7 +171,7 @@ class Record_Info:
                         self.blit_title2(temp,setup.mine_sweeper_font_16,"Rename",C.BLACK,(99,33),2,C.WHITE,True)
                     temp = pygame.transform.scale(temp,(180,60))
                     screen.blit(temp,self.save_rect.topleft)
-            elif self.rename == True:
+            elif self.rename == True and self.delete == False:
                 if self.rename_cancel_rect.collidepoint(pos):
                     temp = pygame.Surface((198,66))
                     temp.fill(C.GRAY)
@@ -114,6 +182,19 @@ class Record_Info:
                     temp = pygame.Surface((198,66))
                     temp.fill(C.GRAY)
                     self.blit_title2(temp,setup.mine_sweeper_font_16,"Save",C.BLACK,(99,33),2,C.WHITE,True)
+                    temp = pygame.transform.scale(temp,(180,60))
+                    screen.blit(temp,self.rename_save_rect.topleft)
+            elif self.rename == False and self.delete == True:
+                if self.rename_cancel_rect.collidepoint(pos):
+                    temp = pygame.Surface((198,66))
+                    temp.fill(C.GRAY)
+                    self.blit_title2(temp,setup.mine_sweeper_font_16,"Cancel",C.BLACK,(99,33),2,C.WHITE,True)
+                    temp = pygame.transform.scale(temp,(180,60))
+                    screen.blit(temp,self.rename_cancel_rect.topleft)
+                if self.rename_save_rect.collidepoint(pos):
+                    temp = pygame.Surface((198,66))
+                    temp.fill(C.GRAY)
+                    self.blit_title2(temp,setup.mine_sweeper_font_16,"Delete",C.BLACK,(99,33),2,C.WHITE,True)
                     temp = pygame.transform.scale(temp,(180,60))
                     screen.blit(temp,self.rename_save_rect.topleft)
     def set_backgroud(self,screen,pos):
@@ -170,7 +251,10 @@ class Record_Info:
         self.blit_title2(screen,setup.mine_sweeper_font_16,"Width : "+str(self.record["width"])+"  Height : "+str(self.record["height"]),C.BLACK,(276,350),2,C.WHITE,True)
         self.blit_title2(screen,setup.mine_sweeper_font_16,"Mines : "+str(self.record["mines"])+"  3BV : "+str(self.bv),C.BLACK,(276,400),2,C.WHITE,True)
         self.blit_title2(screen,setup.mine_sweeper_font_16,"Time : "+str(self.record["gaming"][-1]["time"]/1000)+" Second",C.BLACK,(276,450),2,C.WHITE,True)
-        self.blit_title2(screen,setup.mine_sweeper_font_16,"3BV/Second : "+str(round(self.bv/(self.record["gaming"][-1]["time"]/1000),5)),C.BLACK,(276,500),2,C.WHITE,True)
+        if self.record["gaming"][-1]["time"]/1000 == 0:
+            self.blit_title2(screen,setup.mine_sweeper_font_16,"3BV/Second : 0",C.BLACK,(276,500),2,C.WHITE,True)
+        else:
+            self.blit_title2(screen,setup.mine_sweeper_font_16,"3BV/Second : "+str(round(self.bv/(self.record["gaming"][-1]["time"]/1000),5)),C.BLACK,(276,500),2,C.WHITE,True)
         temp = setup.grids[15].copy()
         tool.blit_image(temp,self.replay_play,(temp.get_width()/2,temp.get_height()/2),True)
         temp = pygame.transform.scale(temp,(60,60))
@@ -209,7 +293,27 @@ class Record_Info:
             temp.fill(C.WHITE)
             tool.blit_text(temp,setup.mine_sweeper_font_24,self.rename_text,C.BLACK,(200,30),True)
             screen.blit(temp,(76,266))
-
+            if pygame.time.get_ticks()-self.duplicated_name<1000:
+                self.blit_title2(screen,setup.mine_sweeper_font_16,"Duplicated Name",C.BLACK,(276,400),2,C.WHITE,True)
+            elif pygame.time.get_ticks()-self.blank_name<1000:
+                self.blit_title2(screen,setup.mine_sweeper_font_16,"Blank Name",C.BLACK,(276,400),2,C.WHITE,True)
+            elif pygame.time.get_ticks()-self.forbidden_name<1000:
+                self.blit_title2(screen,setup.mine_sweeper_font_16,"Forbidden Name",C.BLACK,(276,400),2,C.WHITE,True)
+        if self.delete == True:
+            temp = pygame.Surface((552,732))
+            temp.fill(C.BLACK)
+            temp.set_alpha(200)
+            screen.blit(temp,(0,0))
+            temp = self.create_gray_base(500,400)
+            tool.blit_image(screen,temp,(276,366),True)
+            temp = self.create_button_base3()
+            self.blit_title2(temp,setup.mine_sweeper_font_16,"Cancel",C.BLACK,(90,30),2,C.WHITE,True)
+            tool.blit_image(screen,temp,(146,520),True)
+            temp = self.create_button_base3()
+            self.blit_title2(temp,setup.mine_sweeper_font_16,"Delete",C.BLACK,(90,30),2,C.WHITE,True)
+            tool.blit_image(screen,temp,(406,520),True)
+            self.blit_title2(screen,setup.mine_sweeper_font_24,"Do you want to",C.BLACK,(276,286),2,C.WHITE,True)
+            self.blit_title2(screen,setup.mine_sweeper_font_24,"delete this record?",C.BLACK,(276,356),2,C.WHITE,True)
     def get_record_info(self,record_info,record):
         self.record_info = record_info
         for i in record:
