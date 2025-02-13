@@ -19,10 +19,9 @@ class Record:
         self.t_left = pygame.transform.scale(setup.t_left, (36,33))
         self.t_right = pygame.transform.scale(setup.t_right, (36,33))
         self.replay_cursor = pygame.transform.scale(setup.replay_cursor, (38,40))
-        self.sound_explosion_1 = setup.sounds['explosion_1']
-        self.sound_explosion_2 = setup.sounds['explosion_2']
+        self.sound_explosion = setup.explosion_sounds[0]
         self.sound_button = setup.sounds['button']
-        self.sound_click = setup.sounds["click"]
+        self.sound_click = setup.click_sounds[0]
         self.sound_finish = setup.sounds["finish"]
         self.record_rect = pygame.Rect(36,33,480,96)
         self.last_game_rect = pygame.Rect(36,582,480,60)
@@ -37,9 +36,10 @@ class Record:
         self.button_enable=True
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen,pos)
-        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        self.sound_explosion = setup.explosion_sounds[game_setting["explode_type"]-1]
+        self.sound_click = setup.click_sounds[game_setting["click_type"]-1]
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
-        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_explosion,game_setting["explode_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         for event in events:
@@ -100,7 +100,7 @@ class Record:
                                         return "record_info."+self.record_list[i]
                             if self.mine_rect.collidepoint(pos):
                                 if mine_check:
-                                    sound_explosion.play()
+                                    self.sound_explosion.play()
                             if self.last_game_rect.collidepoint(pos):
                                 check=True
                                 for i in self.record:

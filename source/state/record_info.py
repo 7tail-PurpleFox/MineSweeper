@@ -20,10 +20,9 @@ class Record_Info:
         self.t_left = pygame.transform.scale(setup.t_left, (36,33))
         self.t_right = pygame.transform.scale(setup.t_right, (36,33))
         self.replay_cursor = pygame.transform.scale(setup.replay_cursor, (38,40))
-        self.sound_explosion_1 = setup.sounds['explosion_1']
-        self.sound_explosion_2 = setup.sounds['explosion_2']
+        self.sound_explosion = setup.explosion_sounds[0]
         self.sound_button = setup.sounds['button']
-        self.sound_click = setup.sounds["click"]
+        self.sound_click = setup.click_sounds[0]
         self.sound_finish = setup.sounds["finish"]
         self.title_rect = pygame.Rect(36,33,480,96)
         self.play_rect = pygame.Rect(246,540,60,60)
@@ -49,9 +48,10 @@ class Record_Info:
         #     print(i[0],end=" ")
         # print()
         self.set_backgroud(screen,pos)
-        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        self.sound_explosion = setup.explosion_sounds[game_setting["explode_type"]-1]
+        self.sound_click = setup.click_sounds[game_setting["click_type"]-1]
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
-        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_explosion,game_setting["explode_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         for event in events:

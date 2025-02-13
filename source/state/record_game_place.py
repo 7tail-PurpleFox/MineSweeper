@@ -17,10 +17,9 @@ class Record_Game_Place:
         self.corner_bottom_right = pygame.transform.scale(setup.corner_bottom_right, (36,33))
         self.corner_up_left = pygame.transform.scale(setup.corner_up_left, (36,33))
         self.corner_up_right = pygame.transform.scale(setup.corner_up_right, (36,33))
-        self.sound_explosion_1 = setup.sounds['explosion_1']
-        self.sound_explosion_2 = setup.sounds['explosion_2']
+        self.sound_explosion = setup.explosion_sounds[0]
         self.sound_button = setup.sounds['button']
-        self.sound_click = setup.sounds["click"]
+        self.sound_click = setup.click_sounds[0]
         self.sound_finish = setup.sounds["finish"]
         self.replay_cursor = pygame.transform.scale(setup.replay_cursor, (38,40))
         self.replay_play = pygame.transform.scale(setup.replay_play, (36,36))
@@ -47,9 +46,10 @@ class Record_Game_Place:
 
     def update(self,screen,events,pos,game_setting):
         #print(self.curr_frame,self.game_length)
-        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        self.sound_explosion = setup.explosion_sounds[game_setting["explode_type"]-1]
+        self.sound_click = setup.click_sounds[game_setting["click_type"]-1]
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
-        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_explosion,game_setting["explode_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         w=game_setting["game_place"][0]
@@ -84,7 +84,7 @@ class Record_Game_Place:
                     if self.record_place["gaming"][self.curr_frame]["sound"][0]==1:
                         self.sound_button.play()
                     if self.record_place["gaming"][self.curr_frame]["sound"][1]==1:
-                        sound_explosion.play()
+                        self.sound_explosion.play()
                     if self.record_place["gaming"][self.curr_frame]["sound"][2]==1:
                         self.sound_click.play()
                     if self.record_place["gaming"][self.curr_frame]["sound"][3]==1:

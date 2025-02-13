@@ -99,9 +99,9 @@ class Game_Menu:
                 elif self.custom_reset_rect.collidepoint(pos):
                     if self.state=="Custom":
                         self.sound_button.play()
-                        self.width = 0
-                        self.height = 0
-                        self.mines = 0
+                        self.width = 9
+                        self.height = 9
+                        self.mines = 10
                         return "custom_field."+str(self.width)+" "+str(self.height)+" "+str(self.mines)
                 elif self.start.collidepoint(pos):
                     if self.start_check:
@@ -373,6 +373,26 @@ class Game_Menu:
             temp = self.create_sub_button_base_2()
             self.blit_title(temp,'Reset',setup.mine_sweeper_font_16,2)
             screen.blit(temp,self.custom_reset_rect.topleft)
+            temp = pygame.Surface((308,4)).convert()
+            temp.fill(C.DARK_GRAY)
+            screen.blit(temp,(122,478))
+            temp.fill(C.WHITE)
+            screen.blit(temp,(122,530))
+            temp = pygame.Surface((4,52)).convert()
+            temp.fill(C.DARK_GRAY)
+            screen.blit(temp,(122,478))
+            temp.fill(C.WHITE)
+            screen.blit(temp,(426,478))
+            temp = pygame.Surface((2,2)).convert()
+            temp.fill(C.GRAY)
+            screen.blit(temp,(122,532))
+            screen.blit(temp,(124,530))
+            screen.blit(temp,(426,480))
+            screen.blit(temp,(428,478))
+            temp.fill(C.DARK_GRAY)
+            screen.blit(temp,(122,530))
+            screen.blit(temp,(426,478))
+
             if self.width <= 0:
                 text='Width must be greater than 0'
             elif self.height <= 0:

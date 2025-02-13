@@ -18,10 +18,9 @@ class Game_Place:
         self.corner_bottom_right = pygame.transform.scale(setup.corner_bottom_right, (36,33))
         self.corner_up_left = pygame.transform.scale(setup.corner_up_left, (36,33))
         self.corner_up_right = pygame.transform.scale(setup.corner_up_right, (36,33))
-        self.sound_explosion_1 = setup.sounds['explosion_1']
-        self.sound_explosion_2 = setup.sounds['explosion_2']
+        self.sound_explosion = setup.explosion_sounds[0]
         self.sound_button = setup.sounds['button']
-        self.sound_click = setup.sounds["click"]
+        self.sound_click = setup.explosion_sounds[0]
         self.sound_finish = setup.sounds["finish"]
         self.face_rect=pygame.Rect(241.5,46.5,69,69)
         self.mines_rect = []
@@ -45,9 +44,10 @@ class Game_Place:
         
         
     def update(self,screen,events,pos,game_setting):
-        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        self.sound_explosion = setup.explosion_sounds[game_setting["explode_type"]-1]
+        self.sound_click = setup.click_sounds[game_setting["click_type"]-1]
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
-        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_explosion,game_setting["explode_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         self.sound_list=[False,False,False,False]
@@ -141,7 +141,7 @@ class Game_Place:
                                                         self.mines_map[i][j]=14
                                             self.mines_explore=[[1 for i in range(w)] for i in range(h)]
                                             self.lose=True
-                                            sound_explosion.play()
+                                            self.sound_explosion.play()
                                             self.sound_list[1]=True
                                         else:
                                             self.explore_list.append([a,b])

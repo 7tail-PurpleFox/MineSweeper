@@ -21,23 +21,34 @@ class Game:
                 self.game_setting = json.load(f)
                 self.sound_scale = self.game_setting["sound_scale"]
                 self.music_scale = self.game_setting["music_scale"]
+                self.explode_scale = self.game_setting["explode_scale"]
                 self.explode_type = self.game_setting["explode_type"]
+                self.click_type = self.game_setting["click_type"]
                 self.custom_field = self.game_setting["custom_field"]
+                self.opening = self.game_setting["opening"]
+                self.music_category = self.game_setting["music_category"]
                 self.game_place = [9,9,10]
                 self.block_size = 480/9
         else:
             self.sound_scale = 5
             self.music_scale = 5
+            self.explode_scale = 5
             self.explode_type = 1
+            self.click_type = 1
             self.custom_field = [9,9,10]
             self.game_place = [9,9,10]
             self.block_size = 480/9
+            self.opening = True
+            self.music_category = 1
             self.game_setting = {"sound_scale":self.sound_scale,
                                 "music_scale":self.music_scale,
+                                "explode_scale":self.explode_scale,
                                 "explode_type":self.explode_type,
+                                "click_type":self.click_type,
                                 "custom_field":self.custom_field,
                                 "game_place":self.game_place,
-                                "block_size":self.block_size}
+                                "block_size":self.block_size,
+                                "opening":self.opening}
         self.record=[]
         for i in os.listdir("source/record"):
             if i[-5:]==".json":
@@ -49,10 +60,14 @@ class Game:
         self.background.fill(C.GRAY)
         self.game_setting["sound_scale"] = self.sound_scale
         self.game_setting["music_scale"] = self.music_scale
+        self.game_setting["explode_scale"] = self.explode_scale
         self.game_setting["explode_type"] = self.explode_type
+        self.game_setting["click_type"] = self.click_type
         self.game_setting["custom_field"] = self.custom_field
         self.game_setting["game_place"] = self.game_place
         self.game_setting["block_size"] = self.block_size
+        self.game_setting["opening"] = self.opening
+        self.game_setting["music_category"] = self.music_category
         feedback = self.state.update(self.background,self.events,self.pos,self.game_setting)
         if feedback != None:
             self.handle_feedback(feedback)
@@ -227,9 +242,46 @@ class Game:
                         self.record.append(["Last Game",self.record_temp])
         elif f[0] == "record_info":
             self.record_info=f[1]
+        elif f[0] == "music_down":
+            if self.music_scale>0:
+                self.music_scale-=1
+            pygame.mixer.music.set_volume(self.music_scale/10)
+        elif f[0] == "music_up":
+            if self.music_scale<10:
+                self.music_scale+=1
+            pygame.mixer.music.set_volume(self.music_scale/10)
+        elif f[0] == "music_change":
+            self.music_category+=1
+            if self.music_category>4:
+                self.music_category=1
+            pygame.mixer.music.load(C.MUSIC_PATH+"/background_"+str(self.music_category)+".mp3")
+            pygame.mixer.music.set_volume(self.music_scale/10)
+            pygame.mixer.music.play(-1)
+        elif f[0] == "sound_down":
+            if self.sound_scale>0:
+                self.sound_scale-=1
+        elif f[0] == "sound_up":
+            if self.sound_scale<10:
+                self.sound_scale+=1
+        elif f[0] == "sound_change":
+            self.click_type+=1
+            if self.click_type>6:
+                self.click_type=1
+        elif f[0] == "explode_down":
+            if self.explode_scale>0:
+                self.explode_scale-=1
+        elif f[0] == "explode_up":
+            if self.explode_scale<10:
+                self.explode_scale+=1
+        elif f[0] == "explode_change":
+            self.explode_type+=1
+            if self.explode_type>5:
+                self.explode_type=1
+        elif f[0] == "opening_change":
+            self.opening = not self.opening
                 
         
-def load_image(path, accept={"png", "jpg", "bmp", "gif"}):
+def load_image(path, accept={"png", "jpg", "bmp", "gif", "ico"}):
     #載入圖片
     #accept:可接受的檔案類型
     #return:圖片物件dict

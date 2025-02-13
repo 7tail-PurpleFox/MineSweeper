@@ -10,6 +10,7 @@ images = tool.load_image(C.IMAGE_PATH)
 fonts_32 = tool.load_font(C.FONT_PATH,32)
 fonts_24 = tool.load_font(C.FONT_PATH,24)
 fonts_16 = tool.load_font(C.FONT_PATH,16)
+pygame.display.set_icon(images['mine_icon'])
 
 border_hor_wide = images['border_hor_wide']
 border_hor = images['border_hor']
@@ -30,6 +31,11 @@ replay_next = images["replay_next"]
 replay_end = images["replay_end"]
 replay_pause = images["replay_pause"]
 mouse_cursor = images["mouse_cursor"]
+fox = images["7tail_PurpleFox"]
+pixel_fox = images["pixel_fox"]
+music_icon = images["music_icon"]
+sound_icon = images["sound_icon"]
+mine_icon = images["mine_icon"]
 
 minecraft_font_32 = fonts_32['minecraft']
 mine_sweeper_font_32 = fonts_32['mine_sweeper']
@@ -55,3 +61,15 @@ for i in range(0,276,23):
     numbers.insert(0,temp)
 
 sounds = tool.load_sound(C.SOUND_PATH)
+explosion_sounds = []
+for i in range(1,6):
+    explosion_sounds.append(sounds["explosion_"+str(i)])
+click_sounds = []
+for i in range(1,7):
+    click_sounds.append(sounds["click_"+str(i)])
+musics = []
+for i in range(1,5):
+    musics.append(C.MUSIC_PATH+"/background_"+str(i)+".mp3")
+pygame.mixer.music.load(musics[0])
+pygame.mixer.music.set_volume(0.5)
+

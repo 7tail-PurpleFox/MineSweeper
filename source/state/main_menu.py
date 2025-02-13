@@ -16,10 +16,9 @@ class MainMenu:
         self.corner_bottom_right = pygame.transform.scale(setup.corner_bottom_right, (36,33))
         self.corner_up_left = pygame.transform.scale(setup.corner_up_left, (36,33))
         self.corner_up_right = pygame.transform.scale(setup.corner_up_right, (36,33))
-        self.sound_explosion_1 = setup.sounds['explosion_1']
-        self.sound_explosion_2 = setup.sounds['explosion_2']
+        self.sound_explosion = setup.explosion_sounds[0]
         self.sound_button = setup.sounds['button']
-        self.sound_click = setup.sounds["click"]
+        self.sound_click = setup.click_sounds[0]
         self.sound_finish = setup.sounds["finish"]
 
         self.title = pygame.Rect(36,33,480,96)
@@ -32,9 +31,10 @@ class MainMenu:
         
     def update(self,screen,events,pos,game_setting):
         self.set_backgroud(screen)
-        sound_explosion = self.sound_explosion_1 if game_setting["explode_type"]==1 else self.sound_explosion_2
+        self.sound_explosion = setup.explosion_sounds[game_setting["explode_type"]-1]
+        self.sound_click = setup.click_sounds[game_setting["click_type"]-1]
         pygame.mixer.Sound.set_volume(self.sound_button,game_setting["sound_scale"]/10)
-        pygame.mixer.Sound.set_volume(sound_explosion,game_setting["sound_scale"]/10)
+        pygame.mixer.Sound.set_volume(self.sound_explosion,game_setting["explode_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_click,game_setting["sound_scale"]/10)
         pygame.mixer.Sound.set_volume(self.sound_finish,game_setting["sound_scale"]/10)
         for event in events:
@@ -49,12 +49,14 @@ class MainMenu:
                     self.next = "record"
                 elif self.options.collidepoint(pos):
                     self.sound_button.play()
+                    self.finished = True
+                    self.next = "options"
                 elif self.tutorial.collidepoint(pos):
                     self.sound_button.play()
                 elif self.exit.collidepoint(pos):
                     return "quit"
                 elif self.title.collidepoint(pos):
-                    sound_explosion.play()
+                    self.sound_explosion.play()
         self.button_enable=False
         if any(pygame.mouse.get_pressed()):
             self.button_enable=True

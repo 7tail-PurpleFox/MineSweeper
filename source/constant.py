@@ -8,3 +8,4 @@ DARK_GRAY = (128, 128, 128)
 IMAGE_PATH = 'resource/image'
 FONT_PATH = 'resource/font'
 SOUND_PATH = 'resource/sound'
+MUSIC_PATH = 'resource/music'
