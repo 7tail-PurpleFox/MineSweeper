@@ -53,6 +53,8 @@ class MainMenu:
                     self.next = "options"
                 elif self.tutorial.collidepoint(pos):
                     self.sound_button.play()
+                    self.finished = True
+                    self.next = "tutorial"
                 elif self.exit.collidepoint(pos):
                     return "quit"
                 elif self.title.collidepoint(pos):

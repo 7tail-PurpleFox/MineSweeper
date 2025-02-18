@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 # -*- coding: UTF-8 -*-
 import pygame, os, json
 from source import tool, setup
-from source.state import main_menu, game_place, game_menu, options, record, record_info, record_game_place, opening
+from source.state import main_menu, game_place, game_menu, options, record, record_info, record_game_place, opening, turtorial
 
 def main():
     state_dict = { 'main_menu' : main_menu.MainMenu(),
@@ -11,7 +11,8 @@ def main():
                    'record_info' : record_info.Record_Info(),
                    'record_game_place' : record_game_place.Record_Game_Place(),
                    'opening' : opening.Opening(),
-                   'options' : options.Options() }
+                   'options' : options.Options(),
+                   'tutorial' : turtorial.Tutorial()}
     if os.path.exists("source/game_setting.json"):
         with open("source/game_setting.json","r") as f:
             setting = json.load(f)

@@ -36,8 +36,11 @@ pixel_fox = images["pixel_fox"]
 music_icon = images["music_icon"]
 sound_icon = images["sound_icon"]
 mine_icon = images["mine_icon"]
+beginner = images["beginner"]
+intermediate = images["intermediate"]
+expert = images["expert"]
 
-minecraft_font_32 = fonts_32['minecraft']
+
 mine_sweeper_font_32 = fonts_32['mine_sweeper']
 mine_sweeper_font_24 = fonts_24['mine_sweeper']
 mine_sweeper_font_16 = fonts_16['mine_sweeper']
