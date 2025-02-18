@@ -1,7 +1,0 @@
-*.vscode
-*__pycache__
-test.py
-*.json
-*.ps1
-*.venv
-*.gitignore
