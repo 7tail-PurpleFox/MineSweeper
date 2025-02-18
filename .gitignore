@@ -4,3 +4,4 @@ test.py
 *.json
 *.ps1
 *.venv
+*.gitignore
