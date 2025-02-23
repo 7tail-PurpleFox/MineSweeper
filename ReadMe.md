@@ -6,7 +6,7 @@
 
 + Remember to <code>pip install -r requirements.txt</code> before runnig main.py
 
-+ It may have some problem while run on linux, like you need to use x.org to run gui instead of wayland and you may still to <code>pip install tkinter</code> to get mouse info.
++ It may have some problem while run on linux, like you need to use x.org to run gui instead of wayland, you may still to <code>pip install tkinter</code> to get mouse info and can not adjust the size of window, etc.
 
 #### music from:
 + background 1: [https://youtu.be/7I9E6Enw1R0?si=zb6fAru_HjXHwESE]
