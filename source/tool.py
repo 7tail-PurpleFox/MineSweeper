@@ -16,8 +16,8 @@ class Game:
         self.state = self.state_dict[start_state]
         self.pos = pygame.mouse.get_pos()
         self.record_info = ""
-        if os.path.exists("source/game_setting.json"):
-            with open("source/game_setting.json","r") as f:
+        if os.path.exists(C.SETTING_PATH):
+            with open(C.SETTING_PATH,"r") as f:
                 self.game_setting = json.load(f)
                 self.sound_scale = self.game_setting["sound_scale"]
                 self.music_scale = self.game_setting["music_scale"]
@@ -38,7 +38,7 @@ class Game:
             self.custom_field = [9,9,10]
             self.game_place = [9,9,10]
             self.block_size = 480/9
-            self.opening = True
+            self.opening = False
             self.music_category = 1
             self.game_setting = {"sound_scale":self.sound_scale,
                                 "music_scale":self.music_scale,
@@ -50,9 +50,9 @@ class Game:
                                 "block_size":self.block_size,
                                 "opening":self.opening}
         self.record=[]
-        for i in os.listdir("source/record"):
+        for i in os.listdir(C.RECORD_PATH):
             if i[-5:]==".json":
-                with open("source/record/"+i,"r") as f:
+                with open(C.RECORD_PATH +"/"+i,"r") as f:
                     self.record.append([i[:-5],json.load(f)])
         self.record_temp={}
             
@@ -90,22 +90,31 @@ class Game:
             for event in self.events:
                 if event.type == pygame.QUIT:
                     self.running = False
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+                    elif event.key == pygame.K_F11:
+                        if bool(self.screen.get_flags() & pygame.FULLSCREEN):
+                            self.screen = pygame.display.set_mode(C.SCREEN_SIZE, pygame.RESIZABLE)
+                        else:
+                            self.screen = pygame.display.set_mode((C.MAX_WIDTH, C.MAX_HEIGHT), pygame.FULLSCREEN)
+                        self.blit_background()
             self.pos = pygame.mouse.get_pos()
             self.blit_background()
             self.update()
             pygame.display.update()
             self.clock.tick(120)
-        with open("source/game_setting.json","w") as f:
+        with open(C.SETTING_PATH,"w") as f:
             json.dump(self.game_setting,f)
-        temp=os.listdir("source/record")
+        temp=os.listdir(C.RECORD_PATH)
         for i in temp:
-            os.remove("source/record/"+i)
+            os.remove(C.RECORD_PATH+"/"+i)
         for i in self.record:
-            with open("source/record/"+i[0]+".json","w") as f:
+            with open(C.RECORD_PATH+"/"+i[0]+".json","w") as f:
                 json.dump(i[1],f)
         pygame.quit()
     def blit_background(self):
-        if self.screen.get_width()==C.MAX_WIDTH:
+        if self.screen.get_width()==C.MAX_WIDTH or bool(self.screen.get_flags() & pygame.FULLSCREEN):
             screen_width, screen_height = self.screen.get_size()
             background_width, background_height = self.sub_background.get_size()
             background_width = int(screen_height * background_width / background_height)
@@ -120,7 +129,11 @@ class Game:
             self.sub_background = pygame.transform.scale(self.sub_background, (background_width, background_height))
         elif self.screen.get_size() != self.sub_background.get_size():
             screen_width, screen_height = self.screen.get_size()
+            if screen_width == 0 or screen_height == 0:
+                screen_width, screen_height = C.SCREEN_SIZE
             background_width, background_height = self.sub_background.get_size()
+            if background_width == 0 or background_height == 0:
+                background_width, background_height = C.SCREEN_SIZE
             self.pos = (self.pos[0]*(72+self.block_size*self.game_place[0])//screen_width,self.pos[1]*(252+self.block_size*self.game_place[1])//screen_height)
             if screen_width != background_width:
                 background_height = int(screen_width * background_height / background_width)

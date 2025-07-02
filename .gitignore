@@ -5,3 +5,7 @@ test.py
 *.ps1
 *.venv
 *.exe
+*.spec
+build
+dist
+.minesweeper
